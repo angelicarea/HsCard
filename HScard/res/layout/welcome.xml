@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/cardbg" >
+
+    <FrameLayout
+        android:id="@+id/content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+
+            <ViewAnimator
+                android:id="@+id/title_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <HorizontalScrollView
+                    android:id="@+id/title_bar_main"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none" >
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="45dp"
+                        android:orientation="horizontal" >
+
+                        <Button
+                            android:id="@+id/btn_left"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="职业" />
+
+                        <Button
+                            android:id="@+id/jumptoview"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="跳转" />
+
+                        <RelativeLayout 
+                            android:id="@+id/rl_cost"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_horizontal"
+                            >
+                            
+                            <Button
+                            android:id="@+id/btn_tocost"
+                            android:layout_width="@dimen/btn_cost_wh"
+                            android:layout_height="@dimen/btn_cost_wh"
+                            android:background="@drawable/cost_p"
+                            android:gravity="center"
+                            android:textColor="@color/TextColor"
+                            android:textSize="@dimen/font_no"
+                            android:textStyle="italic" />
+
+                        <Button
+                            android:id="@+id/btn_toatta"
+                            android:layout_width="@dimen/btn_atta_w"
+                            android:layout_height="@dimen/btn_cost_wh"
+                            android:background="@drawable/atta_p"
+                            android:gravity="center"
+                            android:textColor="@color/TextColor"
+                            android:textSize="@dimen/font_no"
+                            android:textStyle="italic" />
+
+                        <Button
+                            android:id="@+id/btn_tohp"
+                            android:layout_width="@dimen/btn_hp_w"
+                            android:layout_height="@dimen/btn_cost_wh"
+                            android:background="@drawable/hp_p"
+                            android:gravity="center"
+                            android:textColor="@color/TextColor"
+                            android:textSize="@dimen/font_no"
+                            android:textStyle="italic" />
+                        </RelativeLayout>
+                        
+
+                        <Button
+                            android:id="@+id/btn_openSearch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="@string/search_all"
+                            android:textColor="@color/TextColor"
+                            android:textSize="@dimen/font_no" />
+						<Button android:id="@+id/btn_reset"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:background="@drawable/btn_set"
+                            android:text="@string/reset"
+                            android:textColor="@color/TextColor"
+                            android:textSize="@dimen/level_font"/>
+                        <RadioButton
+                            android:id="@+id/btn_openLevel"
+                            android:layout_width="@dimen/btn_level_w"
+                            android:layout_height="@dimen/btn_level_h"
+                            android:background="@drawable/btn_level"
+                            android:button="@null"
+                            android:gravity="center"
+                            android:layout_marginRight="0dp"
+                            android:paddingLeft="@dimen/level_margin"
+                            android:text="@string/level_all"
+                            android:textColor="@color/TextColor"
+                            android:textSize="@dimen/level_font" />
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+                <include
+                    android:id="@+id/title_bar_cost"
+                    layout="@layout/title_bar_cost" />
+
+                <include
+                    android:id="@+id/title_bar_atta"
+                    layout="@layout/title_bar_atta" />
+
+                <include
+                    android:id="@+id/title_bar_hp"
+                    layout="@layout/title_bar_hp" />
+            </ViewAnimator>
+
+            <android.support.v4.view.ViewPager
+                android:id="@+id/navi_view_pager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                android:padding="0dip" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_weight="0.1"
+                android:gravity="center_vertical"
+                android:orientation="horizontal" >
+
+                <RadioGroup
+                    android:id="@+id/rg_menu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checkedButton="@+id/btn_cardtool"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal" >
+
+                    <RadioButton
+                        android:id="@+id/btn_cardtool"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/btm_navi_item_bkg"
+                        android:button="@null"
+                        android:gravity="center"
+                        android:text="@string/tab_cardtool"
+                        android:textColor="@color/TextColor"
+                        android:textSize="@dimen/font_normal" />
+
+                    <RadioButton
+                        android:id="@+id/btn_cardgroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/btm_navi_item_bkg"
+                        android:button="@null"
+                        android:gravity="center"
+                        android:text="@string/tab_cardgroup"
+                        android:textColor="@color/TextColor"
+                        android:textSize="@dimen/font_normal" />
+                </RadioGroup>
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+    <ListView
+        android:id="@+id/left_drawer"
+        android:layout_width="45dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="left"
+        android:layout_marginTop="45dp"
+        android:background="@color/transparent"
+        android:cacheColorHint="@color/transparent"
+        android:choiceMode="singleChoice"
+        android:divider="@color/transparent"
+        android:dividerHeight="0dp"
+        android:listSelector="@color/transparent" />
+
+</android.support.v4.widget.DrawerLayout>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal" >
+
+    <RadioGroup
+            android:id="@+id/rg_tocost"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical" >
+    <RadioButton
+        android:id="@+id/rg_tocost_cost"
+        android:layout_width="@dimen/btn_cost_wh"
+        android:layout_height="@dimen/btn_cost_wh"
+        android:button="@null"
+        android:background="@drawable/btn_cost"
+        android:gravity="center"
+        android:textColor="@color/TextColor"
+        android:textSize="@dimen/font_no"
+        android:textStyle="italic" />
+
+    <RadioButton
+        android:id="@+id/rg_tocost_atta"
+        android:layout_width="@dimen/btn_atta_w"
+        android:layout_height="@dimen/btn_cost_wh"
+        android:button="@null"
+        android:background="@drawable/btn_atta"
+        android:gravity="center"
+        android:textColor="@color/TextColor"
+        android:textSize="@dimen/font_no"
+        android:textStyle="italic" />
+
+    <RadioButton
+        android:id="@+id/rg_tocost_hp"
+        android:layout_width="@dimen/btn_hp_w"
+        android:layout_height="@dimen/btn_cost_wh"
+        android:button="@null"
+        android:background="@drawable/btn_hp"
+        android:gravity="center"
+        android:textColor="@color/TextColor"
+        android:textSize="@dimen/font_no"
+        android:textStyle="italic" />
+</RadioGroup>
+</LinearLayout>

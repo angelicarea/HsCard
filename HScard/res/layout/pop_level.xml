@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" >
+
+        <RadioGroup
+            android:id="@+id/rg_level"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkedButton="@+id/rg_level_all"
+            android:orientation="vertical" >
+
+
+                <RadioButton
+                    android:id="@+id/rg_level_all"
+                    android:layout_width="@dimen/btn_level_w"
+                    android:layout_height="@dimen/btn_level_h"
+                    android:background="@drawable/btn_level"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:paddingLeft="@dimen/level_margin"
+                    android:text="@string/level_all"
+                    android:textColor="@color/TextColor"
+                    android:textSize="@dimen/level_font" />
+
+                <RadioButton
+                    android:id="@+id/rg_level_0"
+                    android:layout_width="@dimen/btn_level_w"
+                    android:layout_height="@dimen/btn_level_h"
+                    android:background="@drawable/btn_level"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:paddingLeft="@dimen/level_margin"
+                    android:text="@string/level_0"
+                    android:textColor="@color/TextColor"
+                    android:textSize="@dimen/level_font" />
+
+                <RadioButton
+                    android:id="@+id/rg_level_1"
+                    android:layout_width="@dimen/btn_level_w"
+                    android:layout_height="@dimen/btn_level_h"
+                    android:background="@drawable/btn_level_nomal"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:paddingLeft="@dimen/level_margin"
+                    android:text="@string/level_1"
+                    android:textColor="@color/TextColor"
+                    android:textSize="@dimen/level_font" />
+
+
+
+                <RadioButton
+                    android:id="@+id/rg_level_2"
+                    android:layout_width="@dimen/btn_level_w"
+                    android:layout_height="@dimen/btn_level_h"
+                    android:background="@drawable/btn_level_excellent"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:paddingLeft="@dimen/level_margin"
+                    android:text="@string/level_2"
+                    android:textColor="@color/TextColor"
+                    android:textSize="@dimen/level_font" />
+
+                <RadioButton
+                    android:id="@+id/rg_level_3"
+                    android:layout_width="@dimen/btn_level_w"
+                    android:layout_height="@dimen/btn_level_h"
+                    android:background="@drawable/btn_level_epic"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:paddingLeft="@dimen/level_margin"
+                    android:text="@string/level_3"
+                    android:textColor="@color/TextColor"
+                    android:textSize="@dimen/level_font" />
+
+
+                <RadioButton
+                    android:id="@+id/rg_level_4"
+                    android:layout_width="@dimen/btn_level_w"
+                    android:layout_height="@dimen/btn_level_h"
+                    android:background="@drawable/btn_level_rumorous"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:paddingLeft="@dimen/level_margin"
+                    android:text="@string/level_4"
+                    android:textColor="@color/TextColor"
+                    android:textSize="@dimen/level_font" />
+
+             
+        </RadioGroup>
+
+</RelativeLayout>

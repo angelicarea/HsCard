@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:scrollbars="none" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
+
+        <RadioButton
+            android:id="@+id/title_bar_hp_back"
+            android:layout_width="@dimen/btn_title_h"
+            android:layout_height="@dimen/btn_title_h"
+            android:background="@drawable/back"
+            android:button="@null"
+            android:gravity="center" />
+
+        <RadioGroup
+            android:id="@+id/rg_hp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:checkedButton="@+id/title_bar_hp_all" >
+
+            <RadioButton
+                android:id="@+id/title_bar_hp_all"
+                android:layout_width="@dimen/btn_hp_w"
+                android:layout_height="@dimen/btn_title_h"
+                android:layout_marginLeft="9dp"
+                android:background="@drawable/btn_hp"
+                android:button="@null"
+                android:gravity="center" />
+
+            <RadioButton
+                android:id="@+id/title_bar_hp_1"
+                android:layout_width="@dimen/btn_hp_w"
+                android:layout_height="@dimen/btn_title_h"
+                android:layout_marginLeft="9dp"
+                android:background="@drawable/btn_hp"
+                android:button="@null"
+                android:gravity="center"
+                android:text="@string/no_1"
+                android:textColor="@color/TextColor"
+                android:textSize="@dimen/font_no"
+                android:textStyle="italic" />
+
+            <RadioButton
+                android:id="@+id/title_bar_hp_2"
+                android:layout_width="@dimen/btn_hp_w"
+                android:layout_height="@dimen/btn_title_h"
+                android:layout_marginLeft="9dp"
+                android:background="@drawable/btn_hp"
+                android:button="@null"
+                android:gravity="center"
+                android:text="@string/no_2"
+                android:textColor="@color/TextColor"
+                android:textSize="@dimen/font_no"
+                android:textStyle="italic" />
+
+            <RadioButton
+                android:id="@+id/title_bar_hp_3"
+                android:layout_width="@dimen/btn_hp_w"
+                android:layout_height="@dimen/btn_title_h"
+                android:layout_marginLeft="9dp"
+                android:background="@drawable/btn_hp"
+                android:button="@null"
+                android:gravity="center"
+                android:text="@string/no_3"
+                android:textColor="@color/TextColor"
+                android:textSize="@dimen/font_no"
+                android:textStyle="italic" />
+
+            <RadioButton
+                android:id="@+id/title_bar_hp_4"
+                android:layout_width="@dimen/btn_hp_w"
+                android:layout_height="@dimen/btn_title_h"
+                android:layout_marginLeft="9dp"
+                android:background="@drawable/btn_hp"
+                android:button="@null"
+                android:gravity="center"
+                android:text="@string/no_4"
+                android:textColor="@color/TextColor"
+                android:textSize="@dimen/font_no"
+                android:textStyle="italic" />
+
+            <RadioButton
+                android:id="@+id/title_bar_hp_5"
+                android:layout_width="@dimen/btn_hp_w"
+                android:layout_height="@dimen/btn_title_h"
+                android:layout_marginLeft="9dp"
+                android:background="@drawable/btn_hp"
+                android:button="@null"
+                android:gravity="center"
+                android:text="@string/no_5"
+                android:textColor="@color/TextColor"
+                android:textSize="@dimen/font_no"
+                android:textStyle="italic" />
+
+            <RadioButton
+                android:id="@+id/title_bar_hp_6"
+                android:layout_width="@dimen/btn_hp_w"
+                android:layout_height="@dimen/btn_title_h"
+                android:layout_marginLeft="9dp"
+                android:background="@drawable/btn_hp"
+                android:button="@null"
+                android:gravity="center"
+                android:text="@string/no_6"
+                android:textColor="@color/TextColor"
+                android:textSize="@dimen/font_no"
+                android:textStyle="italic" />
+
+            <RadioButton
+                android:id="@+id/title_bar_hp_7"
+                android:layout_width="@dimen/btn_hp_w"
+                android:layout_height="@dimen/btn_title_h"
+                android:layout_marginLeft="9dp"
+                android:background="@drawable/btn_hp"
+                android:button="@null"
+                android:gravity="center"
+                android:text="@string/no_7"
+                android:textColor="@color/TextColor"
+                android:textSize="@dimen/font_no"
+                android:textStyle="italic" />
+        </RadioGroup>
+    </LinearLayout>
+
+</HorizontalScrollView>

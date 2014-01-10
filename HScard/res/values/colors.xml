@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="TextColor">#FFFFFF</color>
+    <color name="TextBrown">#472c1e</color>
+    <color name="bgColor">#000000</color>
+    <color name="itemBgColor">#0000ff</color>
+    <color name="transparent">#00000000</color>
+    <color name="translucent">#11ffffff</color>
+</resources>
