@@ -1,7 +1,6 @@
 package com.angelic.hscard.db;
 
 import java.util.List;
-import java.util.Map;
 
 import com.angelic.hscard.dao.HsCardDao;
 import com.angelic.hscard.db.DbOpenHelper;
@@ -26,14 +25,16 @@ public class MyTest extends AndroidTestCase {
 		Log.i(TAG,"-->");
 	}
 	
+	@SuppressWarnings("unused")
 	public void rawDB(){
 		MyDbTest dbTest = new MyDbTest(getContext());
 //		Log.i(TAG,"-->");
 		
 	}
+	@SuppressWarnings("unused")
 	public void selectListByModel(){
 		HsCard card = new HsCard();
-		card.setIsgolden("1");
+//		card.setIsgolden("1");
 		card.setSkill("冲锋,战吼");
 		HsCardService service = new HsCardDao(getContext());
 		List<HsCard> list = service.getListrCardByModelOR(card);

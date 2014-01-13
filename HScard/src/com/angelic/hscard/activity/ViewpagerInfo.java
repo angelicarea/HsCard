@@ -1,6 +1,10 @@
 package com.angelic.hscard.activity;
 
 import com.angelic.hscard.R;
+import com.angelic.hscard.dao.HsCardDao;
+import com.angelic.hscard.model.HsCard;
+import com.angelic.hscard.service.HsCardService;
+import com.angelic.hscard.utils.GsonUtil;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -15,6 +19,7 @@ import android.webkit.WebSettings.ZoomDensity;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 /**
  * 
@@ -27,8 +32,10 @@ public class ViewpagerInfo extends Activity {
 
 	private RelativeLayout titleLayout;
 	private WebView webView;
+	private TextView txtName;
 	private Button btnBack;
-	private String cardname;
+	private String cardname,json;
+	private HsCard card;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +58,11 @@ public class ViewpagerInfo extends Activity {
 		Intent intent = getIntent();
 		// 接收意图Intent传值normalName普通卡牌和金色卡牌的英文名
 		cardname = intent.getStringExtra("cardname");
+		txtName = (TextView)findViewById(R.id.txt_name);
+		
+		card = serviceHsCard();
+		txtName.setText(card.getName());
+		json = GsonUtil.objectToJson(card);
 		initView();
 	}
 
@@ -74,10 +86,21 @@ public class ViewpagerInfo extends Activity {
 		}
 		// 背景透明2.X版本(无需设置硬件加速)
 		webView.setBackgroundColor(0);
+		
+		webView.addJavascriptInterface(JavaScriptInterface(),"cardinfo");
 		// Assets文件夹下本地的HTML
 		webView.loadUrl("file:///android_asset/www/cards/card.html");
 	}
 
+	public Object JavaScriptInterface(){
+		Object insertObj = new Object(){ 
+			@SuppressWarnings("unused")
+			public String getjson(){
+				return json;
+			}
+		};
+		return insertObj;
+	}
 	private View.OnClickListener onClick = new View.OnClickListener() {
 
 		@Override
@@ -95,4 +118,10 @@ public class ViewpagerInfo extends Activity {
 			}
 		}
 	};
+	
+	private HsCard serviceHsCard(){
+		HsCardService service = new HsCardDao(this);
+		return service.getCardByEname(cardname);
+	}
 }
+

@@ -88,8 +88,6 @@ public class MyScrollLayout extends ViewGroup{
 		// TODO Auto-generated method stub
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		
-	
-		
 		final int width = MeasureSpec.getSize(widthMeasureSpec);       
 	    final int widthMode = MeasureSpec.getMode(widthMeasureSpec);      
 	    
@@ -209,8 +207,6 @@ public class MyScrollLayout extends ViewGroup{
 	            } else {       
 	                snapToDestination();       
 	            }      
-	            
-	           
 	            
 	            if (mVelocityTracker != null) {       
 	                mVelocityTracker.recycle();       

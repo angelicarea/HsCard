@@ -29,7 +29,7 @@ public class HsCardDao implements HsCardService {
 	public List<HsCard> getListrCardByModelOR(HsCard card) {
 		// TODO Auto-generated method stub
 		List<HsCard> list = new ArrayList<HsCard>();
-		String sql = getORSqlByModel(card);
+		String sql = getANDSqlByModel(card);
 		Log.i(TAG, sql);
 		SQLiteDatabase database = null;
 		try {
@@ -59,7 +59,7 @@ public class HsCardDao implements HsCardService {
 				database.close();
 			}
 		}
-		Log.i(TAG, list.toString());
+//		Log.i(TAG, list.toString());
 		return list;
 	}
 
@@ -93,13 +93,19 @@ public class HsCardDao implements HsCardService {
 			if (strs.length > 0) {
 				int i = 0;
 				for (String str : strs) {
-					if (i == 0) {
-						buffer.append(" and skill like '%" + str + "%'");
-					} else {
-						buffer.append(" or skill like '%" + str + "%'");
+					if (!str.equals("")) {
+						if (i == 0) {
+							buffer.append(" and skill in ('" + str + "'");
+						} else {
+							buffer.append(",'" + str + "'");
+						}
+						i = i + 1;
 					}
-					i = i + 1;
 				}
+				if(i != 0){
+					buffer.append(")");
+				}
+				
 			}
 		}
 		return buffer.toString();
@@ -122,12 +128,17 @@ public class HsCardDao implements HsCardService {
 			if (strs.length > 0) {
 				int i = 0;
 				for (String str : strs) {
-					if (i == 0) {
-						buffer.append(" and race = '" + str + "'");
-					} else {
-						buffer.append(" or race ='" + str + "'");
+					if (!str.equals("")) {
+						if (i == 0) {
+							buffer.append(" and race in ('" + str + "'");
+						} else {
+							buffer.append(",'" + str + "'");
+						}
+						i = i + 1;
 					}
-					i = i + 1;
+				}
+				if(i != 0){
+					buffer.append(")");
 				}
 			}
 		}
@@ -151,12 +162,17 @@ public class HsCardDao implements HsCardService {
 			if (strs.length > 0) {
 				int i = 0;
 				for (String str : strs) {
-					if (i == 0) {
-						buffer.append(" and type ='" + str + "'");
-					} else {
-						buffer.append(" or type ='" + str + "'");
+					if (!str.equals("")) {
+						if (i == 0) {
+							buffer.append(" and type in ('" + str + "'");
+						} else {
+							buffer.append(",'" + str + "'");
+						}
+						i = i + 1;
 					}
-					i = i + 1;
+				}
+				if(i != 0){
+					buffer.append(")");
 				}
 			}
 		}
@@ -185,34 +201,55 @@ public class HsCardDao implements HsCardService {
 
 	private String getANDSqlByModel(HsCard card) {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("select * from hscard where 1=1");
+		String sql = getORSqlByModel(card);
+		buffer.append("select * from (" + sql + ")a where 1=1");
 		if (card != null) {
-			if (card.getAttack() != null) {
-				buffer.append(" and attack = ?");
+			if (card.getAttack() != null && !card.getAttack().equals("")) {
+				if (card.getAttack().equals("7+")) {
+					buffer.append(" and attack > 6");
+				} else {
+					buffer.append(" and attack = " + card.getAttack());
+				}
+
 			}
-			if (card.getCost() != null) {
-				buffer.append(" and cost ?");
+			if (card.getCost() != null && !card.getCost().equals("")) {
+				if (card.getCost().equals("7+")) {
+					buffer.append(" and cost > 6");
+				} else {
+					buffer.append(" and cost = " + card.getCost());
+				}
 			}
-			if (card.getEname() != null) {
-				buffer.append(" and ename = ?");
+			if (card.getHealth() != null && !card.getHealth().equals("")) {
+				if (card.getHealth().equals("7+")) {
+					buffer.append(" and health > 6");
+				} else {
+					buffer.append(" and health = " + card.getHealth());
+				}
 			}
-			if (card.getHealth() != null) {
-				buffer.append(" and health = ?");
+			if (card.getLevel() != null && !card.getLevel().equals("稀有度")) {
+				buffer.append(" and level = '" + card.getLevel() + "'");
 			}
-			if (card.getLevel() != null) {
-				buffer.append(" and level = ?");
-			}
-			if (card.getOccupation() != null) {
-				buffer.append(" and occupation = ?");
-			}
-			if (card.getRace() != null) {
-				buffer.append(" and race = ?");
-			}
-			if (card.getRank() != null) {
-				buffer.append(" and rank = ?");
-			}
-			if (card.getType() != null) {
-				buffer.append(" and type = ?");
+			if (card.getOccupation() != null
+					&& !card.getOccupation().equals("")) {
+				
+				
+				String[] strs = splitStrings(card.getOccupation());
+				if (strs.length > 0) {
+					int i = 0;
+					for (String str : strs) {
+						if (!str.equals("")) {
+							if (i == 0) {
+								buffer.append(" and occupation in ('" + str + "'");
+							} else {
+								buffer.append(",'" + str + "'");
+							}
+							i = i + 1;
+						}
+					}
+					if(i != 0){
+						buffer.append(")");
+					}
+				}
 			}
 		}
 		return buffer.toString();
@@ -230,5 +267,40 @@ public class HsCardDao implements HsCardService {
 		String[] rs = null;
 		rs = strs.split(",");
 		return rs;
+	}
+
+	@Override
+	public HsCard getCardByEname(String ename) {
+		// TODO Auto-generated method stub
+		String sql = "select * from hscard where ename = '" + ename + "'";
+		SQLiteDatabase database = null;
+		HsCard hsCard = new HsCard();
+		try {
+			database = helper.getReadableDatabase();
+			Cursor cursor = database.rawQuery(sql, null);
+
+			int colums = cursor.getColumnCount();
+			while (cursor.moveToNext()) {
+				Map<String, String> map = new HashMap<String, String>();
+
+				for (int i = 0; i < colums; i++) {
+					String cols_name = cursor.getColumnName(i);
+					String cols_value = cursor.getString(cursor
+							.getColumnIndex(cols_name));
+					if (cols_value == null) {
+						cols_value = "";
+					}
+					map.put(cols_name, cols_value);
+				}
+				hsCard = (HsCard) GsonUtil.mapToObject(map, hsCard);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (database != null) {
+				database.close();
+			}
+		}
+		return hsCard;
 	}
 }

@@ -4,11 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.angelic.hscard.R;
+import com.angelic.hscard.adapter.GridItemAdapter;
 import com.angelic.hscard.adapter.LeftMenuAdapter;
 import com.angelic.hscard.adapter.MyPagerAdapter;
+import com.angelic.hscard.adapter.RightMenuAdapter;
 import com.angelic.hscard.anim.SafeAnimator;
+import com.angelic.hscard.dao.HsCardDao;
+import com.angelic.hscard.maths.MathsOccup;
 import com.angelic.hscard.model.HsCard;
 import com.angelic.hscard.model.HsLeftMenu;
+import com.angelic.hscard.service.HsCardService;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityGroup;
@@ -31,6 +36,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -49,12 +55,17 @@ public class Welcome extends ActivityGroup {
 	Context context;
 
 	// 查询条件
-	private HsCard searchCards;
+	private List<HsCard> searchCards;
+	private List<HsCard> searchCardsOcc;
 	private HsCard searchTemp;
-	//
-	private Button btn_jumpToView;
+	private HsCard searchTempOcc;
+	private HsCard searchGroup;
+	private HsCard searchTempGroupOcc;
+	private String currentOcc = "中立";
+	private String cureentOccGroup = "牧师";
+	private String cureentOccGroupShow = "未知";
 	// 底部导航栏
-	LocalActivityManager manager;
+	private LocalActivityManager manager;
 	private final int VP_INDEX_CT = 0;// CardTool
 	private final int VP_INDEX_CG = 1;// CardGroup
 	private int currentIndex = 0;// 当前的选项卡
@@ -65,8 +76,15 @@ public class Welcome extends ActivityGroup {
 	private DrawerLayout mDrawerLayout;
 	private ListView leftView;// 左侧的Menu
 	private Button btnLeftView;
-	List<HsLeftMenu> leftMenuList;
-	LeftMenuAdapter leftAdapter;
+	private List<HsLeftMenu> leftMenuList;
+	private List<HsLeftMenu> leftMenuListTemp;
+	private List<HsLeftMenu> leftMenuListTempGroup;
+	private LeftMenuAdapter leftAdapter;
+	// 右侧导航栏，卡组View
+	private DrawerLayout rDrawerLayout;
+	private ListView rightView;// 右侧的Menu
+	private Button btnRightView;
+	private RightMenuAdapter rightAdapter;
 	// 多级标题栏
 	private ViewAnimator barSwitcher;
 	private HorizontalScrollView scrMain, scrCost, scrAtta, scrHp;
@@ -83,11 +101,10 @@ public class Welcome extends ActivityGroup {
 	// 卡牌搜索弹出层
 	private PopupWindow popSearch;
 	private Button openPopSearch;
-	private List<CheckBox> tempTypeBox;
-	private List<CheckBox> tempRaceBox;
-	private List<CheckBox> tempSkillBox;
-	private EditText searchFuzzy;
-	private int currentSearch = 0;
+	private List<CheckBox> tempTypeBox, tempRaceBox, tempSkillBox,
+			tempTypeBoxG, tempRaceBoxG, tempSkillBoxG;
+	private EditText searchFuzzy, searchFuzzyG;
+	private int currentSearch = 0;// 0为条件查询,1为模糊查询
 	private LinearLayout searchDetailLl, searchFuzzyLl;
 	// 卡牌稀有度弹出层(下拉菜单)
 	private PopupWindow popLevel;
@@ -105,8 +122,6 @@ public class Welcome extends ActivityGroup {
 		context = this;
 		manager = getLocalActivityManager();
 
-		btn_jumpToView = (Button) findViewById(R.id.jumptoview);
-		btn_jumpToView.setOnClickListener(onClick);
 		initListview();
 		initMenu();
 		initViewPager();
@@ -123,7 +138,7 @@ public class Welcome extends ActivityGroup {
 	 * 卡牌稀有度弹出层初始化
 	 * 
 	 * @Title initPopLevel
-	 * @Description 
+	 * @Description
 	 */
 	public void initPopLevel() {
 		// 获取自定义布局文件pop_level.xml的视图
@@ -151,30 +166,59 @@ public class Welcome extends ActivityGroup {
 
 	/**
 	 * 设置PopLevel弹出层RadioButton的值
+	 * 
 	 * @Title setCheckedLevel
-	 * @Description TODO
+	 * @Description
 	 * @param v
 	 */
-	private void setCheckedLevel(View v){
-		if(openPopLevel.getText().equals("稀有度")){
+	private void setCheckedLevel(View v) {
+		if (openPopLevel.getText().equals("稀有度")) {
 			((RadioButton) v.findViewById(R.id.rg_level_all)).setChecked(true);
 		}
-		if(openPopLevel.getText().equals("基本")){
+		if (openPopLevel.getText().equals("基本")) {
 			((RadioButton) v.findViewById(R.id.rg_level_0)).setChecked(true);
 		}
-		if(openPopLevel.getText().equals("普通")){
+		if (openPopLevel.getText().equals("普通")) {
 			((RadioButton) v.findViewById(R.id.rg_level_1)).setChecked(true);
 		}
-		if(openPopLevel.getText().equals("精良")){
+		if (openPopLevel.getText().equals("精良")) {
 			((RadioButton) v.findViewById(R.id.rg_level_2)).setChecked(true);
 		}
-		if(openPopLevel.getText().equals("史诗")){
+		if (openPopLevel.getText().equals("史诗")) {
 			((RadioButton) v.findViewById(R.id.rg_level_3)).setChecked(true);
 		}
-		if(openPopLevel.getText().equals("传说")){
+		if (openPopLevel.getText().equals("传说")) {
 			((RadioButton) v.findViewById(R.id.rg_level_4)).setChecked(true);
 		}
 	}
+
+	private void setOpenLevel(String levelName) {
+		if (levelName.equals("稀有度")) {
+			openPopLevel.setText("稀有度");
+			openPopLevel.setBackgroundResource(R.drawable.btn_level);
+		}
+		if (levelName.equals("基本")) {
+			openPopLevel.setText("基本");
+			openPopLevel.setBackgroundResource(R.drawable.btn_level);
+		}
+		if (levelName.equals("普通")) {
+			openPopLevel.setText("普通");
+			openPopLevel.setBackgroundResource(R.drawable.btn_level_nomal);
+		}
+		if (levelName.equals("精良")) {
+			openPopLevel.setText("精良");
+			openPopLevel.setBackgroundResource(R.drawable.btn_level_excellent);
+		}
+		if (levelName.equals("史诗")) {
+			openPopLevel.setText("史诗");
+			openPopLevel.setBackgroundResource(R.drawable.btn_level_epic);
+		}
+		if (levelName.equals("传说")) {
+			openPopLevel.setText("传说");
+			openPopLevel.setBackgroundResource(R.drawable.btn_level_rumorous);
+		}
+	}
+
 	/**
 	 * 卡牌搜索弹出层初始化
 	 * 
@@ -237,6 +281,15 @@ public class Welcome extends ActivityGroup {
 		if (tempSkillBox == null) {
 			tempSkillBox = new ArrayList<CheckBox>();
 		}
+		if (tempTypeBoxG == null) {
+			tempTypeBoxG = new ArrayList<CheckBox>();
+		}
+		if (tempRaceBoxG == null) {
+			tempRaceBoxG = new ArrayList<CheckBox>();
+		}
+		if (tempSkillBoxG == null) {
+			tempSkillBoxG = new ArrayList<CheckBox>();
+		}
 		initSetCheckBox(customView);
 		((CheckBox) customView.findViewById(R.id.search_type_1))
 				.setOnCheckedChangeListener(checkType);
@@ -290,35 +343,70 @@ public class Welcome extends ActivityGroup {
 
 	/**
 	 * 设置PopSearch弹出层CheckBox的值
+	 * 
 	 * @Title initSetCheckBox
-	 * @Description TODO
+	 * @Description
 	 * @param v
 	 */
 	private void initSetCheckBox(View v) {
-		if (tempTypeBox != null) {
-			for (CheckBox cb : tempTypeBox) {
-				if (cb.isChecked()) {
-					((CheckBox) v.findViewById(cb.getId())).setChecked(true);
-				}
+		if (currentIndex == 0) {
+			if (tempTypeBox != null) {
+				for (CheckBox cb : tempTypeBox) {
+					if (cb.isChecked()) {
+						((CheckBox) v.findViewById(cb.getId()))
+								.setChecked(true);
+					}
 
+				}
+			}
+			if (tempRaceBox != null) {
+				for (CheckBox cb : tempRaceBox) {
+					if (cb.isChecked()) {
+						((CheckBox) v.findViewById(cb.getId()))
+								.setChecked(true);
+					}
+
+				}
+			}
+			if (tempSkillBox != null) {
+				for (CheckBox cb : tempSkillBox) {
+					if (cb.isChecked()) {
+						((CheckBox) v.findViewById(cb.getId()))
+								.setChecked(true);
+					}
+
+				}
+			}
+		} else {
+			if (tempTypeBoxG != null) {
+				for (CheckBox cb : tempTypeBoxG) {
+					if (cb.isChecked()) {
+						((CheckBox) v.findViewById(cb.getId()))
+								.setChecked(true);
+					}
+
+				}
+			}
+			if (tempRaceBoxG != null) {
+				for (CheckBox cb : tempRaceBoxG) {
+					if (cb.isChecked()) {
+						((CheckBox) v.findViewById(cb.getId()))
+								.setChecked(true);
+					}
+
+				}
+			}
+			if (tempSkillBoxG != null) {
+				for (CheckBox cb : tempSkillBoxG) {
+					if (cb.isChecked()) {
+						((CheckBox) v.findViewById(cb.getId()))
+								.setChecked(true);
+					}
+
+				}
 			}
 		}
-		if (tempRaceBox != null) {
-			for (CheckBox cb : tempRaceBox) {
-				if (cb.isChecked()) {
-					((CheckBox) v.findViewById(cb.getId())).setChecked(true);
-				}
 
-			}
-		}
-		if (tempSkillBox != null) {
-			for (CheckBox cb : tempSkillBox) {
-				if (cb.isChecked()) {
-					((CheckBox) v.findViewById(cb.getId())).setChecked(true);
-				}
-
-			}
-		}
 	}
 
 	/**
@@ -348,28 +436,63 @@ public class Welcome extends ActivityGroup {
 	}
 
 	/**
-	 * 重置事件中,重置弹出层中的数据
+	 * 重置事件中,重置全部查询条件
 	 * 
 	 * @Title resetSearchOption
 	 * @Description TODO
 	 */
+	@SuppressWarnings("unused")
 	private void resetSearchOption() {
-		if (tempTypeBox != null) {
-			for (CheckBox cb : tempTypeBox) {
-				cb.setChecked(false);
-			}
-		}
-		if (tempRaceBox != null) {
-			for (CheckBox cb : tempRaceBox) {
-				cb.setChecked(false);
-			}
-		}
-		if (tempSkillBox != null) {
-			for (CheckBox cb : tempSkillBox) {
-				cb.setChecked(false);
-			}
-		}
+		// if (tempTypeBox != null) {
+		// for (CheckBox cb : tempTypeBox) {
+		// cb.setChecked(false);
+		// }
+		// }
+		// if (tempRaceBox != null) {
+		// for (CheckBox cb : tempRaceBox) {
+		// cb.setChecked(false);
+		// }
+		// }
+		// if (tempSkillBox != null) {
+		// for (CheckBox cb : tempSkillBox) {
+		// cb.setChecked(false);
+		// }
+		// }
+		tempTypeBox = new ArrayList<CheckBox>();
+		tempRaceBox = new ArrayList<CheckBox>();
+		tempSkillBox = new ArrayList<CheckBox>();
 		searchFuzzy.setText("");
+		resetWecome();
+
+		leftMenuList = new ArrayList<HsLeftMenu>();
+		// if(currentIndex == 0){
+		// changeLeft(searchTemp);
+		SearchCards();
+		// }
+
+	}
+
+	private void resetWecome() {
+
+		// 花费,攻击,血量重置
+		btnCost.setVisibility(View.VISIBLE);
+		btnAtta.setVisibility(View.GONE);
+		btnHp.setVisibility(View.GONE);
+		btnCost.setText("");
+		btnAtta.setText("");
+		btnHp.setText("");
+		((RadioButton) findViewById(R.id.title_bar_cost_all)).setChecked(true);
+		((RadioButton) findViewById(R.id.title_bar_atta_all)).setChecked(true);
+		((RadioButton) findViewById(R.id.title_bar_hp_all)).setChecked(true);
+		// 稀有度重置
+		openPopLevel.setText("稀有度");
+		openPopLevel.setBackgroundResource(R.drawable.btn_level);
+
+		searchTemp = new HsCard();
+		searchGroup = new HsCard();
+		searchTempOcc = new HsCard();
+		searchTempGroupOcc = new HsCard();
+		currentOcc = "中立";
 	}
 
 	/**
@@ -392,7 +515,7 @@ public class Welcome extends ActivityGroup {
 		findViewById(R.id.title_bar_cost_back).setOnClickListener(onClick);
 		findViewById(R.id.title_bar_atta_back).setOnClickListener(onClick);
 		findViewById(R.id.title_bar_hp_back).setOnClickListener(onClick);
-		// TODO 多级标题栏主页面的点击事件
+		// 多级标题栏主页面的点击事件
 		btnCost.setOnClickListener(onClick);
 		btnAtta.setOnClickListener(onClick);
 		btnHp.setOnClickListener(onClick);
@@ -400,9 +523,9 @@ public class Welcome extends ActivityGroup {
 		btnAtta.setOnLongClickListener(onLongClick);
 		btnHp.setOnLongClickListener(onLongClick);
 		// 费用,攻击,血量等查询条件的长点击事件
-		costRl = (RelativeLayout)findViewById(R.id.rl_cost);
-		findViewById(R.id.btn_toatta).setVisibility(View.GONE);
-		findViewById(R.id.btn_tohp).setVisibility(View.GONE);
+		costRl = (RelativeLayout) findViewById(R.id.rl_cost);
+		btnAtta.setVisibility(View.GONE);
+		btnHp.setVisibility(View.GONE);
 		// 多级标题栏导航中的RadioButton点击事件
 		((RadioGroup) findViewById(R.id.rg_cost))
 				.setOnCheckedChangeListener(costChecked);
@@ -413,15 +536,15 @@ public class Welcome extends ActivityGroup {
 
 		safeAnimator = new SafeAnimator();
 	}
-	
-	// TODO 初始化花费,攻击,血量弹出层
-	private void initPopCost(){
+
+	// 初始化花费,攻击,血量弹出层
+	private void initPopCost() {
 		final View costView = getLayoutInflater().inflate(R.layout.pop_cost,
 				null, false);
 
 		// 创建PopupWindow实例
 		popCost = new PopupWindow(costView, btnCost.getWidth(),
-				btnCost.getHeight()*3+5);
+				btnCost.getHeight() * 3 + 5);
 		// 设置动画效果 [R.style.AnimationFade 是事先定义好的]
 		popCost.setAnimationStyle(R.style.AnimationFade);
 		// 使其聚集
@@ -430,9 +553,12 @@ public class Welcome extends ActivityGroup {
 		popCost.setOutsideTouchable(true);
 		popCost.setBackgroundDrawable(new BitmapDrawable());
 		// RadioButton赋值
-		((RadioButton) costView.findViewById(R.id.rg_tocost_cost)).setText(btnCost.getText());
-		((RadioButton) costView.findViewById(R.id.rg_tocost_atta)).setText(btnAtta.getText());
-		((RadioButton) costView.findViewById(R.id.rg_tocost_hp)).setText(btnHp.getText());
+		((RadioButton) costView.findViewById(R.id.rg_tocost_cost))
+				.setText(btnCost.getText());
+		((RadioButton) costView.findViewById(R.id.rg_tocost_atta))
+				.setText(btnAtta.getText());
+		((RadioButton) costView.findViewById(R.id.rg_tocost_hp)).setText(btnHp
+				.getText());
 		// RadioButton点击事件
 		((RadioGroup) costView.findViewById(R.id.rg_tocost))
 				.setOnCheckedChangeListener(searchChecked);
@@ -453,33 +579,57 @@ public class Welcome extends ActivityGroup {
 		// 设置一个定制的影子覆盖打开抽屉时的主要内容
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow,
 				GravityCompat.START);
+		mDrawerLayout.setFocusableInTouchMode(false);
 		btnLeftView = (Button) findViewById(R.id.btn_left);
 		// 按钮按下，将抽屉打开
 		btnLeftView.setOnClickListener(onClick);
 		leftView = (ListView) findViewById(R.id.left_drawer);
 		leftView.setOverScrollMode(View.OVER_SCROLL_NEVER);
-
+		
 		leftMenuList = new ArrayList<HsLeftMenu>();
-		HsLeftMenu left1 = new HsLeftMenu();
-		HsLeftMenu left2 = new HsLeftMenu();
-		HsLeftMenu left3 = new HsLeftMenu();
-		HsLeftMenu left4 = new HsLeftMenu();
-		left1.setName("中立");
-		left1.setCount(200);
-		left1.setIsShow(false);
-		left2.setName("牧师");
-		left2.setCount(20);
-		left2.setIsShow(false);
-		left3.setName("法师");
-		left3.setCount(20);
-		left3.setIsShow(false);
-		left4.setName("萨满");
-		left4.setCount(20);
-		left4.setIsShow(false);
-		leftMenuList.add(left1);
-		leftMenuList.add(left2);
-		leftMenuList.add(left3);
-		leftMenuList.add(left4);
+		leftMenuListTemp = new ArrayList<HsLeftMenu>();
+		leftMenuListTempGroup = new ArrayList<HsLeftMenu>();
+		// 测试数据
+		// HsLeftMenu left1 = new HsLeftMenu();
+		// HsLeftMenu left2 = new HsLeftMenu();
+		// HsLeftMenu left3 = new HsLeftMenu();
+		// HsLeftMenu left4 = new HsLeftMenu();
+		// left1.setName("中立");
+		// left1.setCount(200);
+		// left1.setIsShow(false);
+		// left2.setName("牧师");
+		// left2.setCount(20);
+		// left2.setIsShow(false);
+		// left3.setName("法师");
+		// left3.setCount(20);
+		// left3.setIsShow(false);
+		// left4.setName("萨满");
+		// left4.setCount(20);
+		// left4.setIsShow(false);
+		// leftMenuList.add(left1);
+		// leftMenuList.add(left2);
+		// leftMenuList.add(left3);
+		// leftMenuList.add(left4);
+		// setLeftItemList(leftMenuList);
+		searchTemp = new HsCard();
+		searchGroup = new HsCard();
+		changeLeft(searchTemp);
+		// SearchCards();
+	}
+
+	private void changeLeft(HsCard card) {
+		HsCardService service = new HsCardDao(this);
+		card.setOccupation("");
+		searchCards = service.getListrCardByModelOR(card);
+		countLeftMenu(searchCards);
+		setLeftItemList(leftMenuList);
+	}
+
+	private void changeLeftGroup(HsCard card) {
+		HsCardService service = new HsCardDao(this);
+		card.setOccupation("中立," + cureentOccGroup);
+		searchCards = service.getListrCardByModelOR(card);
+		countLeftMenu(searchCards);
 		setLeftItemList(leftMenuList);
 	}
 
@@ -495,6 +645,23 @@ public class Welcome extends ActivityGroup {
 		leftAdapter = new LeftMenuAdapter(leftlist, this);
 		leftView.setAdapter(leftAdapter);
 		leftView.setOnItemClickListener(leftItemClick);
+	}
+
+	/**
+	 * 计算Card职业和职业数量
+	 * 
+	 * @Title countLeftMenu
+	 * @Description
+	 * @param list
+	 */
+	private void countLeftMenu(List<HsCard> list) {
+		leftMenuList = MathsOccup.getTypeByHsList(list);
+		if (currentIndex == 0) {
+			leftMenuListTemp = leftMenuList;
+		} else {
+			leftMenuListTempGroup = leftMenuList;
+		}
+
 	}
 
 	/**
@@ -541,8 +708,27 @@ public class Welcome extends ActivityGroup {
 			String occName = leftMenu.getName();
 			leftAdapter.setSelectRadioButton(position);
 			mDrawerLayout.closeDrawer(Gravity.LEFT);
-			Toast.makeText(context, "item" + occName, Toast.LENGTH_SHORT)
-					.show();
+			Toast.makeText(context, occName, Toast.LENGTH_SHORT).show();
+			// TODO 职业查询
+			if (currentIndex == 0) {
+
+				if (searchTemp == null) {
+					searchTemp = new HsCard();
+				}
+				if (searchTempOcc == null) {
+					searchTempOcc = new HsCard();
+				}
+				currentOcc = occName;
+			} else if (currentIndex == 1) {
+				if (searchGroup == null) {
+					searchGroup = new HsCard();
+				}
+				if (searchTempGroupOcc == null) {
+					searchTempGroupOcc = new HsCard();
+				}
+				cureentOccGroupShow = occName;
+			}
+			SearchCards();
 		}
 	};
 
@@ -565,32 +751,134 @@ public class Welcome extends ActivityGroup {
 			case R.id.rg_level_all:
 				openPopLevel.setText("稀有度");
 				openPopLevel.setBackgroundResource(R.drawable.btn_level);
-				closePopLevel();
+				if (currentIndex == 0) {
+					if (searchTemp == null) {
+						searchTemp = new HsCard();
+					}
+					searchTemp.setLevel("稀有度");
+					searchTempOcc = searchTemp;
+					// changeLeft(searchTemp);
+				} else {
+					if (searchGroup == null) {
+						searchGroup = new HsCard();
+					}
+					searchGroup.setLevel("稀有度");
+					searchTempGroupOcc = searchGroup;
+					// changeLeft(searchGroup);
+				}
+				SearchCards();
+				closePop(popLevel);
 				break;
 			case R.id.rg_level_0:
 				openPopLevel.setText("基本");
 				openPopLevel.setBackgroundResource(R.drawable.btn_level);
-				closePopLevel();
+				if (currentIndex == 0) {
+					if (searchTemp == null) {
+						searchTemp = new HsCard();
+					}
+					searchTemp.setLevel("基本");
+					searchTempOcc = searchTemp;
+					// changeLeft(searchTemp);
+				} else {
+					if (searchGroup == null) {
+						searchGroup = new HsCard();
+					}
+					if (searchGroup == null) {
+						searchGroup = new HsCard();
+					}
+					searchGroup.setLevel("基本");
+					searchTempGroupOcc = searchGroup;
+					// changeLeft(searchGroup);
+				}
+				SearchCards();
+				closePop(popLevel);
 				break;
 			case R.id.rg_level_1:
 				openPopLevel.setText("普通");
 				openPopLevel.setBackgroundResource(R.drawable.btn_level_nomal);
-				closePopLevel();
+				if (currentIndex == 0) {
+					if (searchTemp == null) {
+						searchTemp = new HsCard();
+					}
+					searchTemp.setLevel("普通");
+					searchTempOcc = searchTemp;
+					// changeLeft(searchTemp);
+				} else {
+					if (searchGroup == null) {
+						searchGroup = new HsCard();
+					}
+					if (searchGroup == null) {
+						searchGroup = new HsCard();
+					}
+					searchGroup.setLevel("普通");
+					searchTempGroupOcc = searchGroup;
+					// changeLeft(searchGroup);
+				}
+				SearchCards();
+				closePop(popLevel);
 				break;
 			case R.id.rg_level_2:
 				openPopLevel.setText("精良");
 				openPopLevel.setBackgroundResource(R.drawable.btn_level_excellent);
-				closePopLevel();
+				if (currentIndex == 0) {
+					if (searchTemp == null) {
+						searchTemp = new HsCard();
+					}
+					searchTemp.setLevel("精良");
+					searchTempOcc = searchTemp;
+					// changeLeft(searchTemp);
+				} else {
+					if (searchGroup == null) {
+						searchGroup = new HsCard();
+					}
+					searchGroup.setLevel("精良");
+					searchTempGroupOcc = searchGroup;
+					// changeLeft(searchGroup);
+				}
+				SearchCards();
+				closePop(popLevel);
 				break;
 			case R.id.rg_level_3:
 				openPopLevel.setText("史诗");
 				openPopLevel.setBackgroundResource(R.drawable.btn_level_epic);
-				closePopLevel();
+				if (currentIndex == 0) {
+					if (searchTemp == null) {
+						searchTemp = new HsCard();
+					}
+					searchTemp.setLevel("史诗");
+					searchTempOcc = searchTemp;
+					// changeLeft(searchTemp);
+				} else {
+					if (searchGroup == null) {
+						searchGroup = new HsCard();
+					}
+					searchGroup.setLevel("史诗");
+					searchTempGroupOcc = searchGroup;
+					// changeLeft(searchGroup);
+				}
+				SearchCards();
+				closePop(popLevel);
 				break;
 			case R.id.rg_level_4:
 				openPopLevel.setText("传说");
 				openPopLevel.setBackgroundResource(R.drawable.btn_level_rumorous);
-				closePopLevel();
+				if (currentIndex == 0) {
+					if (searchTemp == null) {
+						searchTemp = new HsCard();
+					}
+					searchTemp.setLevel("传说");
+					searchTempOcc = searchTemp;
+					// changeLeft(searchTemp);
+				} else {
+					if (searchGroup == null) {
+						searchGroup = new HsCard();
+					}
+					searchGroup.setLevel("传说");
+					searchTempGroupOcc = searchGroup;
+					// changeLeft(searchGroup);
+				}
+				SearchCards();
+				closePop(popLevel);
 				break;
 			case R.id.rg_tocost_cost:
 				btnCost.setVisibility(View.VISIBLE);
@@ -615,34 +903,22 @@ public class Welcome extends ActivityGroup {
 			}
 		}
 	};
+
 	/**
-	 * 关闭PopCost弹出层
-	 * @Title clossPopCost
-	 * @Description TODO
+	 * 关闭弹出层
+	 * 
+	 * @Title closePop
+	 * @Description
+	 * @param pop
+	 *            弹出层对象
 	 */
-	private void clossPopCost(){
-		if (popCost != null && popCost.isShowing()) {
-			popCost.dismiss();
-			popCost = null;
-		}
-	}
-	private void closePop(PopupWindow pop){
+	private void closePop(PopupWindow pop) {
 		if (pop != null && pop.isShowing()) {
 			pop.dismiss();
 			pop = null;
 		}
 	}
-	/**
-	 * 关闭PopLevel弹出层
-	 * @Title closePopLevel
-	 * @Description 
-	 */
-	private void closePopLevel(){
-		if (popLevel != null && popLevel.isShowing()) {
-			popLevel.dismiss();
-			popLevel = null;
-		}
-	}
+
 	/**
 	 * 条件搜索弹出层中卡牌类型checkbox的点击事件
 	 */
@@ -651,37 +927,58 @@ public class Welcome extends ActivityGroup {
 		public void onCheckedChanged(CompoundButton buttonView,
 				boolean isChecked) {
 			// 判断tempTypeBox中是否存在此CompoundButton,0:没有,1:有
-			int isHave = isHaveCheck(buttonView);
-			if (isChecked) {
-				if (searchTemp == null) {
-					searchTemp = new HsCard();
-				}
-				// 如果存在 ,则改变CompoundButton的状态
-				if (isHave == 1) {
-					for (CheckBox cb : tempTypeBox) {
-						if (cb.getId() == buttonView.getId()) {
-							cb.setChecked(true);
-						}
-					}
-				} else {// 如果不存在,将此CompoundButton添加进tempTypeBox
-					tempTypeBox.add((CheckBox) buttonView);
-				}
-				// 获取查询条件
-				setTempSearch("type");
 
-			} else {
-				if (isHave == 1) {
-					for (CheckBox cb : tempTypeBox) {
-						if (cb.getId() == buttonView.getId()) {
-							cb.setChecked(false);
+			int isHave = isHaveCheck(buttonView);
+			if (currentIndex == 0) {
+				if (isChecked) {
+					if (searchTemp == null) {
+						searchTemp = new HsCard();
+					}
+					// 如果存在 ,则改变CompoundButton的状态
+					if (isHave == 1) {
+						for (CheckBox cb : tempTypeBox) {
+							if (cb.getId() == buttonView.getId()) {
+								cb.setChecked(true);
+							}
+						}
+					} else {// 如果不存在,将此CompoundButton添加进tempTypeBox
+						tempTypeBox.add((CheckBox) buttonView);
+					}
+				} else {
+					if (isHave == 1) {
+						for (CheckBox cb : tempTypeBox) {
+							if (cb.getId() == buttonView.getId()) {
+								cb.setChecked(false);
+							}
 						}
 					}
 				}
-				// 获取查询条件
-				setTempSearch("type");
+			} else {
+				if (isChecked) {
+					if (searchGroup == null) {
+						searchGroup = new HsCard();
+					}
+					// 如果存在 ,则改变CompoundButton的状态
+					if (isHave == 1) {
+						for (CheckBox cb : tempTypeBoxG) {
+							if (cb.getId() == buttonView.getId()) {
+								cb.setChecked(true);
+							}
+						}
+					} else {// 如果不存在,将此CompoundButton添加进tempTypeBoxG
+						tempTypeBoxG.add((CheckBox) buttonView);
+					}
+				} else {
+					if (isHave == 1) {
+						for (CheckBox cb : tempTypeBoxG) {
+							if (cb.getId() == buttonView.getId()) {
+								cb.setChecked(false);
+							}
+						}
+					}
+				}
 			}
 		}
-
 	};
 
 	/**
@@ -693,34 +990,56 @@ public class Welcome extends ActivityGroup {
 				boolean isChecked) {
 			// 判断tempTypeBox中是否存在此CompoundButton,0:没有,1:有
 			int isHave = isHaveCheck(buttonView);
-			if (isChecked) {
-				if (searchTemp == null) {
-					searchTemp = new HsCard();
-				}
-				// 如果存在 ,则改变CompoundButton的状态
-				if (isHave == 1) {
-					for (CheckBox cb : tempSkillBox) {
-						if (cb.getId() == buttonView.getId()) {
-							cb.setChecked(true);
+			if (currentIndex == 0) {
+				if (isChecked) {
+					if (searchTemp == null) {
+						searchTemp = new HsCard();
+					}
+					// 如果存在 ,则改变CompoundButton的状态
+					if (isHave == 1) {
+						for (CheckBox cb : tempSkillBox) {
+							if (cb.getId() == buttonView.getId()) {
+								cb.setChecked(true);
+							}
+						}
+					} else {// 如果不存在,将此CompoundButton添加进tempTypeBox
+						tempSkillBox.add((CheckBox) buttonView);
+					}
+				} else {
+					if (isHave == 1) {
+						for (CheckBox cb : tempSkillBox) {
+							if (cb.getId() == buttonView.getId()) {
+								cb.setChecked(false);
+							}
 						}
 					}
-				} else {// 如果不存在,将此CompoundButton添加进tempTypeBox
-					tempSkillBox.add((CheckBox) buttonView);
 				}
-				// 获取查询条件
-				setTempSearch("skill");
-
 			} else {
-				if (isHave == 1) {
-					for (CheckBox cb : tempSkillBox) {
-						if (cb.getId() == buttonView.getId()) {
-							cb.setChecked(false);
+				if (isChecked) {
+					if (searchGroup == null) {
+						searchGroup = new HsCard();
+					}
+					// 如果存在 ,则改变CompoundButton的状态
+					if (isHave == 1) {
+						for (CheckBox cb : tempSkillBoxG) {
+							if (cb.getId() == buttonView.getId()) {
+								cb.setChecked(true);
+							}
+						}
+					} else {// 如果不存在,将此CompoundButton添加进tempTypeBox
+						tempSkillBoxG.add((CheckBox) buttonView);
+					}
+				} else {
+					if (isHave == 1) {
+						for (CheckBox cb : tempSkillBoxG) {
+							if (cb.getId() == buttonView.getId()) {
+								cb.setChecked(false);
+							}
 						}
 					}
 				}
-				// 获取查询条件
-				setTempSearch("skill");
 			}
+
 		}
 
 	};
@@ -734,34 +1053,57 @@ public class Welcome extends ActivityGroup {
 				boolean isChecked) {
 			// 判断tempTypeBox中是否存在此CompoundButton,0:没有,1:有
 			int isHave = isHaveCheck(buttonView);
-			if (isChecked) {
-				if (searchTemp == null) {
-					searchTemp = new HsCard();
-				}
-				// 如果存在 ,则改变CompoundButton的状态
-				if (isHave == 1) {
-					for (CheckBox cb : tempRaceBox) {
-						if (cb.getId() == buttonView.getId()) {
-							cb.setChecked(true);
-						}
+			if (currentIndex == 0) {
+				if (isChecked) {
+					if (searchTemp == null) {
+						searchTemp = new HsCard();
 					}
-				} else {// 如果不存在,将此CompoundButton添加进tempTypeBox
-					tempRaceBox.add((CheckBox) buttonView);
-				}
-				// 获取查询条件
-				setTempSearch("race");
+					// 如果存在 ,则改变CompoundButton的状态
+					if (isHave == 1) {
+						for (CheckBox cb : tempRaceBox) {
+							if (cb.getId() == buttonView.getId()) {
+								cb.setChecked(true);
+							}
+						}
+					} else {// 如果不存在,将此CompoundButton添加进tempTypeBox
+						tempRaceBox.add((CheckBox) buttonView);
+					}
 
-			} else {
-				if (isHave == 1) {
-					for (CheckBox cb : tempRaceBox) {
-						if (cb.getId() == buttonView.getId()) {
-							cb.setChecked(false);
+				} else {
+					if (isHave == 1) {
+						for (CheckBox cb : tempRaceBox) {
+							if (cb.getId() == buttonView.getId()) {
+								cb.setChecked(false);
+							}
 						}
 					}
 				}
-				// 获取查询条件
-				setTempSearch("race");
+			} else {
+				if (isChecked) {
+					if (searchGroup == null) {
+						searchGroup = new HsCard();
+					}
+					// 如果存在 ,则改变CompoundButton的状态
+					if (isHave == 1) {
+						for (CheckBox cb : tempRaceBoxG) {
+							if (cb.getId() == buttonView.getId()) {
+								cb.setChecked(true);
+							}
+						}
+					} else {// 如果不存在,将此CompoundButton添加进tempTypeBoxG
+						tempRaceBoxG.add((CheckBox) buttonView);
+					}
+				} else {
+					if (isHave == 1) {
+						for (CheckBox cb : tempRaceBoxG) {
+							if (cb.getId() == buttonView.getId()) {
+								cb.setChecked(false);
+							}
+						}
+					}
+				}
 			}
+
 		}
 
 	};
@@ -770,7 +1112,7 @@ public class Welcome extends ActivityGroup {
 	 * 将搜索条件弹出层中所选择的条件,生成searchTemp的属性,即查询条件
 	 * 
 	 * @Title setTempSearch
-	 * @Description 
+	 * @Description
 	 * @param list
 	 * @param listType
 	 */
@@ -779,47 +1121,89 @@ public class Welcome extends ActivityGroup {
 			StringBuffer typeTemp = new StringBuffer();
 			typeTemp.append("");
 			int tPoint = 0;
-			for (CheckBox cb : tempTypeBox) {
-				if (cb.isChecked()) {
-					if (tPoint == 0) {
-						typeTemp.append(cb.getText());
-						tPoint = 1;
-					} else {
-						typeTemp.append("," + cb.getText());
+			if (currentIndex == 0) {
+				for (CheckBox cb : tempTypeBox) {
+					if (cb.isChecked()) {
+						if (tPoint == 0) {
+							typeTemp.append(cb.getText());
+							tPoint = 1;
+						} else {
+							typeTemp.append("," + cb.getText());
+						}
 					}
 				}
+				searchTemp.setType(typeTemp.toString());
+			} else {
+				for (CheckBox cb : tempTypeBoxG) {
+					if (cb.isChecked()) {
+						if (tPoint == 0) {
+							typeTemp.append(cb.getText());
+							tPoint = 1;
+						} else {
+							typeTemp.append("," + cb.getText());
+						}
+					}
+				}
+				searchGroup.setType(typeTemp.toString());
 			}
-			searchTemp.setType(typeTemp.toString());
 		} else if (listType.equals("race")) {
 			StringBuffer raceTemp = new StringBuffer();
 			raceTemp.append("");
 			int tPoint = 0;
-			for (CheckBox cb : tempRaceBox) {
-				if (cb.isChecked()) {
-					if (tPoint == 0) {
-						raceTemp.append(cb.getText());
-						tPoint = 1;
-					} else {
-						raceTemp.append("," + cb.getText());
+			if (currentIndex == 0) {
+				for (CheckBox cb : tempRaceBox) {
+					if (cb.isChecked()) {
+						if (tPoint == 0) {
+							raceTemp.append(cb.getText());
+							tPoint = 1;
+						} else {
+							raceTemp.append("," + cb.getText());
+						}
 					}
 				}
+				searchTemp.setRace(raceTemp.toString());
+			} else {
+				for (CheckBox cb : tempRaceBoxG) {
+					if (cb.isChecked()) {
+						if (tPoint == 0) {
+							raceTemp.append(cb.getText());
+							tPoint = 1;
+						} else {
+							raceTemp.append("," + cb.getText());
+						}
+					}
+				}
+				searchGroup.setRace(raceTemp.toString());
 			}
-			searchTemp.setRace(raceTemp.toString());
 		} else if (listType.equals("skill")) {
 			StringBuffer skillTemp = new StringBuffer();
 			skillTemp.append("");
 			int tPoint = 0;
-			for (CheckBox cb : tempSkillBox) {
-				if (cb.isChecked()) {
-					if (tPoint == 0) {
-						skillTemp.append(cb.getText());
-						tPoint = 1;
-					} else {
-						skillTemp.append("," + cb.getText());
+			if (currentIndex == 0) {
+				for (CheckBox cb : tempSkillBox) {
+					if (cb.isChecked()) {
+						if (tPoint == 0) {
+							skillTemp.append(cb.getText());
+							tPoint = 1;
+						} else {
+							skillTemp.append("," + cb.getText());
+						}
 					}
 				}
+				searchTemp.setSkill(skillTemp.toString());
+			} else {
+				for (CheckBox cb : tempSkillBoxG) {
+					if (cb.isChecked()) {
+						if (tPoint == 0) {
+							skillTemp.append(cb.getText());
+							tPoint = 1;
+						} else {
+							skillTemp.append("," + cb.getText());
+						}
+					}
+				}
+				searchGroup.setSkill(skillTemp.toString());
 			}
-			searchTemp.setSkill(skillTemp.toString());
 		}
 	}
 
@@ -827,29 +1211,53 @@ public class Welcome extends ActivityGroup {
 	 * 判断触发事件的CheckBox是否已经存在于用于生成条件的CheckBox List
 	 * 
 	 * @Title isHaveCheck
-	 * @Description 
+	 * @Description
 	 * @param buttonView
 	 * @return
 	 */
 	private int isHaveCheck(CompoundButton buttonView) {
-		if (tempTypeBox != null) {
-			for (CheckBox cb : tempTypeBox) {
-				if (cb.getId() == buttonView.getId()) {
-					return 1;
+		if (currentIndex == 0) {
+			if (tempTypeBox != null) {
+				for (CheckBox cb : tempTypeBox) {
+					if (cb.getId() == buttonView.getId()) {
+						return 1;
+					}
 				}
 			}
-		}
-		if (tempRaceBox != null) {
-			for (CheckBox cb : tempRaceBox) {
-				if (cb.getId() == buttonView.getId()) {
-					return 1;
+			if (tempRaceBox != null) {
+				for (CheckBox cb : tempRaceBox) {
+					if (cb.getId() == buttonView.getId()) {
+						return 1;
+					}
 				}
 			}
-		}
-		if (tempSkillBox != null) {
-			for (CheckBox cb : tempSkillBox) {
-				if (cb.getId() == buttonView.getId()) {
-					return 1;
+			if (tempSkillBox != null) {
+				for (CheckBox cb : tempSkillBox) {
+					if (cb.getId() == buttonView.getId()) {
+						return 1;
+					}
+				}
+			}
+		} else {
+			if (tempTypeBoxG != null) {
+				for (CheckBox cb : tempTypeBoxG) {
+					if (cb.getId() == buttonView.getId()) {
+						return 1;
+					}
+				}
+			}
+			if (tempRaceBoxG != null) {
+				for (CheckBox cb : tempRaceBoxG) {
+					if (cb.getId() == buttonView.getId()) {
+						return 1;
+					}
+				}
+			}
+			if (tempSkillBoxG != null) {
+				for (CheckBox cb : tempSkillBoxG) {
+					if (cb.getId() == buttonView.getId()) {
+						return 1;
+					}
 				}
 			}
 		}
@@ -877,6 +1285,13 @@ public class Welcome extends ActivityGroup {
 			if (viewPager.getCurrentItem() != cur) {
 				viewPager.setCurrentItem(cur);
 			}
+//			if (currentIndex == 0) {
+//				setLeftItemList(leftMenuListTemp);
+//				leftMenuList = leftMenuListTemp;
+//			} else {
+//				setLeftItemList(leftMenuListTempGroup);
+//				leftMenuList = leftMenuListTempGroup;
+//			}
 		}
 	};
 
@@ -915,8 +1330,32 @@ public class Welcome extends ActivityGroup {
 				break;
 			}
 			currentIndex = arg0;
+			if (currentIndex == 0) {
+				setLeftItemList(leftMenuListTemp);
+				leftMenuList = leftMenuListTemp;
+				btnCost.setText(searchTemp.getCost());
+				btnAtta.setText(searchTemp.getAttack());
+				btnHp.setText(searchTemp.getHealth());
+				if(searchTemp.getLevel()!=null){
+					setOpenLevel(searchTemp.getLevel());
+				}else{
+					setOpenLevel("稀有度");
+				}
+			} else {
+				setLeftItemList(leftMenuListTempGroup);
+				leftMenuList = leftMenuListTempGroup;
+				// TODO 测试初始化
+				cureentOccGroupShow = cureentOccGroup;
+				btnCost.setText(searchGroup.getCost());
+				btnAtta.setText(searchGroup.getAttack());
+				btnHp.setText(searchGroup.getHealth());
+				if(searchGroup.getLevel()!=null){
+					setOpenLevel(searchGroup.getLevel());
+				}else{
+					setOpenLevel("稀有度");
+				}
+			}
 		}
-
 	}
 
 	private void toScrCost() {
@@ -986,7 +1425,7 @@ public class Welcome extends ActivityGroup {
 	}
 
 	/**
-	 * 多级标题栏导航中的RadioButton点击事件
+	 * 多级标题栏导航中的RadioButton点击事件 TODO 按花费查询
 	 */
 	private OnCheckedChangeListener costChecked = new OnCheckedChangeListener() {
 
@@ -1031,10 +1470,26 @@ public class Welcome extends ActivityGroup {
 				backToMain(TopBarMode.Cost);
 				break;
 			}
+			if (currentIndex == 0) {
+				if (searchTemp == null) {
+					searchTemp = new HsCard();
+				}
+				searchTemp.setCost(btnCost.getText().toString());
+				searchTempOcc = searchTemp;
+				// changeLeft(searchTemp);
+				SearchCards();
+			} else {
+				if (searchGroup == null) {
+					searchGroup = new HsCard();
+				}
+				searchGroup.setCost(btnCost.getText().toString());
+				searchTempGroupOcc = searchGroup;
+				SearchCards();
+			}
 		}
 	};
 	/**
-	 * 多级标题栏导航中的RadioButton点击事件
+	 * 多级标题栏导航中的RadioButton点击事件 TODO 按攻击查询
 	 */
 	private OnCheckedChangeListener attaChecked = new OnCheckedChangeListener() {
 
@@ -1081,10 +1536,26 @@ public class Welcome extends ActivityGroup {
 			default:
 				break;
 			}
+			if (currentIndex == 0) {
+				if (searchTemp == null) {
+					searchTemp = new HsCard();
+				}
+				searchTemp.setAttack(btnAtta.getText().toString());
+				searchTempOcc = searchTemp;
+				// changeLeft(searchTemp);
+				SearchCards();
+			} else {
+				if (searchGroup == null) {
+					searchGroup = new HsCard();
+				}
+				searchGroup.setAttack(btnAtta.getText().toString());
+				searchTempGroupOcc = searchGroup;
+				SearchCards();
+			}
 		}
 	};
 	/**
-	 * 多级标题栏导航中的RadioButton点击事件
+	 * 多级标题栏导航中的RadioButton点击事件 TODO 按血量查询
 	 */
 	private OnCheckedChangeListener hpChecked = new OnCheckedChangeListener() {
 
@@ -1128,6 +1599,21 @@ public class Welcome extends ActivityGroup {
 			default:
 				break;
 			}
+			if (currentIndex == 0) {
+				if (searchTemp == null) {
+					searchTemp = new HsCard();
+				}
+				searchTemp.setHealth(btnHp.getText().toString());
+				searchTempOcc = searchTemp;
+				SearchCards();
+			} else {
+				if (searchGroup == null) {
+					searchGroup = new HsCard();
+				}
+				searchGroup.setHealth(btnHp.getText().toString());
+				searchTempGroupOcc = searchGroup;
+				SearchCards();
+			}
 		}
 	};
 
@@ -1136,15 +1622,8 @@ public class Welcome extends ActivityGroup {
 		@Override
 		public void onClick(View v) {
 			switch (v.getId()) {
-			case R.id.jumptoview:
-				Intent intent = new Intent(Welcome.this, Viewpager.class);
-				intent.putExtra("normalName", "Alexstrasza");
-				intent.putExtra("goldenName", "g-Alexstrasza");
-				startActivity(intent);
-				break;
-			// TODO 按钮按下,将抽屉打开,(初始化)
+			// 按钮按下,将抽屉打开,(初始化)
 			case R.id.btn_left:
-
 				mDrawerLayout.openDrawer(Gravity.LEFT);
 				break;
 			// 多级标题栏导航中的返回事件
@@ -1186,18 +1665,30 @@ public class Welcome extends ActivityGroup {
 				break;
 			// Search Pop弹出层右上角关闭按钮,关闭事件
 			case R.id.btn_search_close:
-				if (popSearch != null && popSearch.isShowing()) {
-					popSearch.dismiss();
-					popSearch = null;
-				}
+				closePop(popSearch);
 				break;
 			case R.id.btn_search:
-				// TODO 模糊查询
-				searchFuzzy.getText();
-				if (popSearch != null && popSearch.isShowing()) {
-					popSearch.dismiss();
-					popSearch = null;
+
+				if (currentSearch == 0) {
+					// TODO 全库查询
+					// 获取查询条件
+					resetWecome();
+					setTempSearch("type");
+					setTempSearch("race");
+					setTempSearch("skill");
+					if (currentIndex == 0) {
+						searchTempOcc = searchTemp;
+					} else {
+						searchTempGroupOcc = searchGroup;
+					}
+					SearchCards();
+				} else if (currentSearch == 1) {
+					// TODO 模糊查询 需要模糊查询
+					// searchFuzzy.getText();
+					// SearchCards();
 				}
+
+				closePop(popSearch);
 				break;
 			default:
 				break;
@@ -1205,17 +1696,19 @@ public class Welcome extends ActivityGroup {
 		}
 
 	};
+	/**
+	 * 长点击事件,弹出层切换花费,攻击,血量
+	 */
 	private OnLongClickListener onLongClick = new OnLongClickListener() {
-		
+
 		@Override
 		public boolean onLongClick(View v) {
-			// TODO Auto-generated method stub
-				if (popCost != null && popCost.isShowing()) {
-					popCost.dismiss();
-					return false;
-				} else {
-					initPopCost();
-				}
+			if (popCost != null && popCost.isShowing()) {
+				popCost.dismiss();
+				return false;
+			} else {
+				initPopCost();
+			}
 			return false;
 		}
 	};
@@ -1229,5 +1722,55 @@ public class Welcome extends ActivityGroup {
 	 */
 	private View getView(String id, Intent intent) {
 		return manager.startActivity(id, intent).getDecorView();
+	}
+
+	/**
+	 * 查询结果
+	 * 
+	 * @Title SearchCards
+	 * @Description TODO Change
+	 */
+	private void SearchCards() {
+		if (currentIndex == 0) {
+			changeLeft(searchTemp);
+			searchTempOcc.setOccupation(currentOcc);
+			searchCardsOcc = serviceHsCard(searchTempOcc);
+			if (searchCardsOcc.size() == 0 && searchCards.size() != 0) {
+				searchTempOcc.setOccupation(searchCards.get(0).getOccupation());
+				searchCardsOcc = serviceHsCard(searchTempOcc);
+			}
+			GridItemAdapter adapter = new GridItemAdapter(searchCardsOcc, this,
+					((GridView) views.get(0).findViewWithTag("cardView0")));
+			// 获取cardView0
+			((GridView) views.get(0).findViewWithTag("cardView0"))
+					.setAdapter(adapter);
+		} else if (currentIndex == 1) {
+			changeLeftGroup(searchGroup);
+			searchTempGroupOcc.setOccupation(cureentOccGroupShow);
+			searchCardsOcc = serviceHsCard(searchTempGroupOcc);
+			if (searchCardsOcc.size() == 0 && searchCards.size() != 0) {
+				searchTempGroupOcc.setOccupation(searchCards.get(0)
+						.getOccupation());
+				searchCardsOcc = serviceHsCard(searchTempGroupOcc);
+			}
+			GridItemAdapter adapter = new GridItemAdapter(searchCardsOcc, this,
+					((GridView) views.get(1).findViewWithTag("cardView1")),
+					"group");
+			// 获取cardView1
+			((GridView) views.get(1).findViewWithTag("cardView1"))
+					.setAdapter(adapter);
+		}
+	}
+
+	/**
+	 * 
+	 * @Title serviceHsCard
+	 * @Description
+	 * @param card
+	 * @return
+	 */
+	private List<HsCard> serviceHsCard(HsCard card) {
+		HsCardService service = new HsCardDao(context);
+		return service.getListrCardByModelOR(card);
 	}
 }

@@ -23,5 +23,9 @@
         <item name="android:windowEnterAnimation">@anim/pop_input_to_down</item>
         <item name="android:windowExitAnimation">@anim/pop_outdown_to_up</item>
     </style>
+    <style name="animLoadStyle" parent="@android:style/Widget.ProgressBar.Large">
+        <item name="android:indeterminateDrawable">@anim/load_card</item>
+    </style>
+    
 
 </resources>

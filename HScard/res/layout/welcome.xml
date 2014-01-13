@@ -37,11 +37,6 @@
                             android:layout_height="wrap_content"
                             android:text="职业" />
 
-                        <Button
-                            android:id="@+id/jumptoview"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="跳转" />
 
                         <RelativeLayout 
                             android:id="@+id/rl_cost"
@@ -181,6 +176,19 @@
         android:layout_width="45dp"
         android:layout_height="match_parent"
         android:layout_gravity="left"
+        android:layout_marginTop="45dp"
+        android:background="@color/transparent"
+        android:cacheColorHint="@color/transparent"
+        android:choiceMode="singleChoice"
+        android:divider="@color/transparent"
+        android:dividerHeight="0dp"
+        android:listSelector="@color/transparent" />
+    
+    <ListView
+        android:id="@+id/right_drawer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
         android:layout_marginTop="45dp"
         android:background="@color/transparent"
         android:cacheColorHint="@color/transparent"

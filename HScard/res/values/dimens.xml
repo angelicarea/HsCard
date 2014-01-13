@@ -14,6 +14,7 @@
     <dimen name="btn_hp_w">26dp</dimen>
     <dimen name="btn_level_w">70dp</dimen>
 	<dimen name="activity_large">200dp</dimen>
+	<dimen name="font_card">20sp</dimen>
 	<dimen name="font_normal">18sp</dimen>
 	<dimen name="font_no">14sp</dimen>
 	<dimen name="font_search">12sp</dimen>

@@ -3,10 +3,13 @@ package com.angelic.hscard.adapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.angelic.hscard.R;
+
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridView;
 
 /**
  * @classname MyPagerAdapter
@@ -18,7 +21,7 @@ public class MyPagerAdapter extends PagerAdapter {
 	List<View> list = new ArrayList<View>();
 
 	/**
-	 * 构造方法，参数是我们的页卡，这样比较方便。
+	 * 构造方法，参数是页卡，这样比较方便。
 	 * <p>Title: </p>
 	 * <p>Description: </p>
 	 * @param list
@@ -62,8 +65,15 @@ public class MyPagerAdapter extends PagerAdapter {
 	@Override
 	public Object instantiateItem(ViewGroup container, int position) {
 		// TODO Auto-generated method stub
+		View view = null;
 		ViewPager pViewPager = ((ViewPager) container);
-        pViewPager.addView(list.get(position));
-        return list.get(position);
+		view = list.get(position);
+		
+		String key = "cardView" + position;
+		((GridView)view.findViewById(R.id.gridview)).setTag(key);
+		((GridView)view.findViewById(R.id.gridview)).setTag(key);
+		
+        pViewPager.addView(view);
+        return view;
 	}
 }

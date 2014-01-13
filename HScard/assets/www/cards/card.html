@@ -154,40 +154,116 @@ ol,ul {
 	margin: 0 auto;
 	width: 35px;
 }
+.detail_rarity_icon_base{
+	display: block;
+	height: 35px;
+	margin: 0 auto;
+	width: 35px;
+}
 </style>
-<script type="text/javascript">
-	
-</script>
-</head>
-
-<body>
+<body  onload="init()">
 	<div id="popBox">
 		<div class="cards_big_box clearFix">
 
 			<div class="cards_detail">
-				<p class="detail_top">阿莱克丝塔萨</p>
+				<p class="detail_top" id="name"></p>
 				<div class="detail_con">
 					<ul>
-						<li class="detail_skill">战吼：使一个英雄的剩余生命值成为15。</li>
-						<li>卡牌类型：随从</li>
-						<li>职业：中立</li>
-						<li>种族：龙</li>
-						<li>分解获得：400<span class="icon_stive icon_gain"></span></li>
-						<li>合成需要：1600<span class="icon_stive icon_consume"></span></li>
+						<li class="detail_skill" id="description"></li>
+						<li id="type"></li>
+						<li id="occupation"></li>
+						<li id="race"></li>
+						<li id="decompound"></li>
+						<li id="compound"></li>
 					</ul>
 					<p class="border_db"></p>
-					<p class="detail_bg">生命的缚誓者阿莱克丝塔萨给所有人带来生命和希望。除了死亡之翼。除了玛利苟斯。除了耐克鲁斯。</p>
+					<p class="detail_bg" id="cardps"></p>
 					<p class="border_db"></p>
 				</div>
 				<div class="detail_bottom">
-					<p class="rarity_txt">专家级</p>
-					<p class="rarity_con">
-						传说<span class="detail_rarity_icon rarity_legendary"></span>
-					</p>
-					<p class="rarity_artist">画家：Raymond Swanland</p>
+					<p class="rarity_txt" id="rank"></p>
+					<p class="rarity_con" id="level"></p>
+					<p class="rarity_artist" id="artist"></p>
 				</div>
 			</div>
 		</div>
 	</div>
 </body>
+<script type="text/javascript">
+	function init(){
+		var card = window.cardinfo.getjson();
+		var json = new Function("return" + card)();
+		if(json.name != ""){
+			document.getElementById("name").innerHTML = json.name;
+		}else{
+			document.getElementById("name").style.display="none";
+		}
+		if(json.description != ""){
+			document.getElementById("description").innerHTML = json.description;
+		}else{
+			document.getElementById("description").style.display="none";
+		}
+		if(json.type != ""){
+			document.getElementById("type").innerHTML = "卡牌类型：" + json.type;
+		}else{
+			document.getElementById("type").style.display="none";
+		}
+		if(json.occupation != ""){
+			document.getElementById("occupation").innerHTML = "职业：" + json.occupation;
+		}else{
+			document.getElementById("occupation").style.display="none";
+		}
+		if(json.race != ""){
+			document.getElementById("race").innerHTML = "种族：" + json.race;
+		}else{
+			document.getElementById("race").style.display="none";
+		}
+		if(json.decompound != ""){
+			document.getElementById("decompound").innerHTML = "分解获得：" + json.decompound + "<span class='icon_stive icon_gain'></span>";
+		}else{
+			document.getElementById("decompound").style.display="none";
+		}
+		if(json.compound != ""){
+			document.getElementById("compound").innerHTML = "合成需要："+ json.compound + "<span class='icon_stive icon_consume'></span>";
+		}else{
+			document.getElementById("compound").style.display="none";
+		}
+		if(json.cardps != ""){
+			document.getElementById("cardps").innerHTML = json.cardps;
+		}else{
+			document.getElementById("cardps").style.display="none";
+		}
+		if(json.rank != ""){
+			document.getElementById("rank").innerHTML = json.rank;
+		}else{
+			document.getElementById("rank").style.display="none";
+		}
+		if(json.level != ""){
+			if(json.level == "传说"){
+				document.getElementById("level").innerHTML = "传说<span class='detail_rarity_icon rarity_legendary'></span>";			
+			}
+			if(json.level == "史诗"){
+				document.getElementById("level").innerHTML = "史诗<span class='detail_rarity_icon rarity_epic'></span>";			
+			}
+			if(json.level == "精良"){
+				document.getElementById("level").innerHTML = "精良<span class='detail_rarity_icon rarity_rare'></span>";			
+			}
+			if(json.level == "普通"){
+				document.getElementById("level").innerHTML = "普通<span class='detail_rarity_icon .rarity_common'></span>";			
+			}
+			if(json.level == "基本"){
+				document.getElementById("level").innerHTML = "基本<span class='detail_rarity_icon_base'></span>";			
+			}
+			
+		}else{
+			document.getElementById("level").style.display="none";
+		}
+		if(json.artist != ""){
+			document.getElementById("artist").innerHTML = "画家：" + json.artist;
+		}else{
+			document.getElementById("artist").style.display="none";
+		}
+		
+	}
+</script>
 </html>

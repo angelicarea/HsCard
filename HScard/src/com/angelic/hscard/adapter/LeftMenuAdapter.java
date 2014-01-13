@@ -9,11 +9,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
 import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -28,12 +24,21 @@ public class LeftMenuAdapter extends BaseAdapter {
 		super();
 		this.list = list;
 		inflater = LayoutInflater.from(context);
+		
+//		BitmapFactory.Options options = new BitmapFactory.Options();  
+//       /** 
+//        * 最关键在此，把options.inJustDecodeBounds = true; 
+//        * 这里再decodeFile()，返回的bitmap为空，但此时调用options.outHeight时，已经包含了图片的高了 
+//        */  
+//       options.inJustDecodeBounds = true;  
+//       Bitmap bitmap = BitmapFactory.decodeFile("/sdcard/test.jpg", options); // 此时返回的bitmap为null  
+//		Bitmap bitmap = BitmapFactory.decodeResource(getResource(),);
 	}
 
 	/**
 	 * 设置选中的RadioButton的状态
 	 * @Title setSelectRadioButton
-	 * @Description TODO
+	 * @Description 
 	 * @param position
 	 */
 	public void setSelectRadioButton(int position) {
@@ -43,7 +48,6 @@ public class LeftMenuAdapter extends BaseAdapter {
 
 	@Override
 	public int getCount() {
-		// TODO Auto-generated method stub
 		if (list == null) {
 			return 0;
 		} else {
@@ -53,7 +57,6 @@ public class LeftMenuAdapter extends BaseAdapter {
 
 	@Override
 	public Object getItem(int position) {
-		// TODO Auto-generated method stub
 		if (list == null) {
 			return null;
 		} else {
@@ -63,13 +66,11 @@ public class LeftMenuAdapter extends BaseAdapter {
 
 	@Override
 	public long getItemId(int position) {
-		// TODO Auto-generated method stub
 		return position;
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		// TODO Auto-generated method stub
 		if (list == null || getCount() == 0) {
 			return null;
 		}
@@ -98,6 +99,24 @@ public class LeftMenuAdapter extends BaseAdapter {
 		} else if (list.get(position).getName().equals("萨满")) {
 			viewHolder.btnOcc.setBackgroundResource(R.drawable.tab_shaman);
 			viewHolder.count.setText(list.get(position).getCount() + "");
+		} else if (list.get(position).getName().equals("德鲁伊")) {
+			viewHolder.btnOcc.setBackgroundResource(R.drawable.tab_druid);
+			viewHolder.count.setText(list.get(position).getCount() + "");
+		} else if (list.get(position).getName().equals("猎人")) {
+			viewHolder.btnOcc.setBackgroundResource(R.drawable.tab_hunter);
+			viewHolder.count.setText(list.get(position).getCount() + "");
+		}else if (list.get(position).getName().equals("圣骑士")) {
+			viewHolder.btnOcc.setBackgroundResource(R.drawable.tab_paladin);
+			viewHolder.count.setText(list.get(position).getCount() + "");
+		}else if (list.get(position).getName().equals("潜行者")) {
+			viewHolder.btnOcc.setBackgroundResource(R.drawable.tab_robber);
+			viewHolder.count.setText(list.get(position).getCount() + "");
+		}else if (list.get(position).getName().equals("术士")) {
+			viewHolder.btnOcc.setBackgroundResource(R.drawable.tab_warlock);
+			viewHolder.count.setText(list.get(position).getCount() + "");
+		}else if (list.get(position).getName().equals("战士")) {
+			viewHolder.btnOcc.setBackgroundResource(R.drawable.tab_warrior);
+			viewHolder.count.setText(list.get(position).getCount() + "");
 		}
 
 		// viewHolder.btnOcc.setId(position);
@@ -105,6 +124,9 @@ public class LeftMenuAdapter extends BaseAdapter {
 		// viewHolder.btnOcc.setOnCheckedChangeListener(changeListener);
 		if (selectedRadio == position) {
 			viewHolder.btnOcc.setChecked(true);
+//			LayoutParams params = new LayoutParams();
+//			params.width = 
+//			viewHolder.btnOcc.setLayoutParams(params);
 		} else {
 			viewHolder.btnOcc.setChecked(false);
 		}
@@ -122,7 +144,6 @@ public class LeftMenuAdapter extends BaseAdapter {
 //		@Override
 //		public void onCheckedChanged(CompoundButton buttonView,
 //				boolean isChecked) {
-//			// TODO Auto-generated method stub
 //			if (isChecked) {
 //
 //				selectedRadio = buttonView.getId();

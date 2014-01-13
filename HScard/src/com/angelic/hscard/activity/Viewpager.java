@@ -12,8 +12,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.angelic.hscard.R;
+import com.angelic.hscard.model.HsCard;
 import com.angelic.hscard.service.AssetsFileService;
 import com.angelic.hscard.utils.ImageTools;
 import com.angelic.hscard.view.MyScrollLayout;
@@ -40,6 +42,8 @@ public class Viewpager extends Activity implements OnViewChangeListener {
 	private ImageView normalCard, goldenCard;
 	private Button btnBack;
 	private String normalName, goldenName;
+	private HsCard card;
+	private TextView txtName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -53,8 +57,10 @@ public class Viewpager extends Activity implements OnViewChangeListener {
 
 		Intent intent = getIntent();
 		// 接收意图Intent传值normalName普通卡牌和金色卡牌的英文名
-		normalName = intent.getStringExtra("normalName");
-		goldenName = intent.getStringExtra("goldenName");
+		card = (HsCard)intent.getSerializableExtra("card");
+		normalName = toNormalCardName(card.getEname());
+		goldenName = "g-" + normalName;
+		
 		initView();
 	}
 
@@ -70,6 +76,9 @@ public class Viewpager extends Activity implements OnViewChangeListener {
 		// 回退事件
 		btnBack = (Button) findViewById(R.id.btn_back);
 		btnBack.setOnClickListener(onClick);
+		//卡牌中文名
+		txtName = (TextView)findViewById(R.id.txt_name);
+		txtName.setText(card.getName());
 		// 普通卡牌的ImageView初始化
 		normalCard = (ImageView) findViewById(R.id.normalcard);
 		// 金色卡牌的ImageView初始化
@@ -148,10 +157,8 @@ public class Viewpager extends Activity implements OnViewChangeListener {
 				//currentItem == 0  时为普通卡牌,currentItem == 1  时为金色卡牌
 				if (currentItem == 0) {
 					intent.putExtra("cardname", normalName);
-					Log.i(TAG, normalName);
 				} else {
 					intent.putExtra("cardname", goldenName);
-					Log.i(TAG, goldenName);
 				}
 				startActivity(intent);
 				break;
@@ -160,4 +167,13 @@ public class Viewpager extends Activity implements OnViewChangeListener {
 			}
 		}
 	};
+	
+	private static String toNormalCardName(String ename) {
+		String g = ename.substring(0, 2);
+		if (g.equals("g-")) {
+			return ename.substring(2);
+		} else {
+			return ename;
+		}
+	}
 }

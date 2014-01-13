@@ -5,9 +5,10 @@ import java.util.List;
 import com.angelic.hscard.model.HsCard;
 
 public interface HsCardService {
+	
 
 	/**
-	 * 
+	 * 通过卡牌类别,种族,技能类型多条件查询结果
 	 * @Title getListrCardByModelOR
 	 * @Description 通过卡牌类别,种族,技能类型多条件查询结果
 	 * @param card
@@ -17,4 +18,6 @@ public interface HsCardService {
 	public List<HsCard> getListrCardByModelOR(HsCard card);
 
 	public List<HsCard> getListrCardByModelAND(HsCard card);
+	
+	public HsCard getCardByEname(String ename);
 }

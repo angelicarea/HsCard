@@ -1,7 +1,13 @@
 package com.angelic.hscard.model;
 
-public class HsCard {
+import java.io.Serializable;
 
+public class HsCard implements Serializable {
+
+	/**
+	 * @Fields serialVersionUID : TODO
+	 */ 
+	private static final long serialVersionUID = 1L;
 	private String cardid;// 卡牌编号
 	private String name;// 卡牌名称
 	private String ename;// 卡牌英文名(金色卡牌英文名为g-前缀)
@@ -15,13 +21,14 @@ public class HsCard {
 	private String health;// 生命值
 	private String decompound;// 分解尘数
 	private String compound;// 合成尘数
-	private String level;// 卡牌稀有等级(基础,普通,精良,史诗,传说)
+	private String level;// 卡牌稀有等级(基本,普通,精良,史诗,传说)
 	private String imgurl;// 卡牌图片URL地址(在线)
 	private String gimgurl;// 金卡图片URL地址(在线)
 	private String rank;// 卡牌等级(基本级,专家级)
 	private String artist;// 画家
 	private String cardps;// 卡牌描述
 	private String isgolden;// 是否金卡(0:普通卡,1:金卡)
+	private String querykey;//模糊查询关键字
 
 	public HsCard(){
 		this.isgolden = "0";
@@ -185,6 +192,14 @@ public class HsCard {
 
 	public void setIsgolden(String isgolden) {
 		this.isgolden = isgolden;
+	}
+
+	public String getQuerykey() {
+		return querykey;
+	}
+
+	public void setQuerykey(String querykey) {
+		this.querykey = querykey;
 	}
 
 }
